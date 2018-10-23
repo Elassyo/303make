@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+
+import sys
+from Element import Element
+
+
+def get_files(line):
+    all = set(filter(lambda x: x, [e.strip() for e in line.replace(":", " ").split()]))
+    return all
+
+
+def parse_file(file_name):
+    elems = []
+    files = set()
+    clines = []
+    f = open(file_name, "r")
+    for line in f.readlines():
+        line = line.strip()
+        if not line:
+            continue
+        if ":" in line:
+            files = files.union(get_files(line))
+            elems.append(Element(line))
+        else:
+            clines.append(line.split())
+    return elems, list(files), clines
+
+
+def build_array(elems, files):
+    array = []
+    for file in files:
+        if file not in elems:
+            array.append([0 for _ in range(0, len(files))])
+        else:
+            elem = elems[elems.index(file)]
+            array.append([elem.is_dep(f) for f in files])
+    return array
+
+
+def find_res(i, array, files):
+    for j, res in enumerate(files):
+        if array[j][i] == 1:
+            print(" -> " + files[j], end="")
+            find_res(j, array, files)
+
+def print_all(array, elems, files):
+    print("\n".join("[" + " ".join(map(lambda x: str(x), a)) + "]" for a in array) + "\n")
+    for i, file in enumerate(files):
+        for j, res in enumerate(files):
+            if array[j][i] == 1:
+                print(files[i], end=" -> ")
+                print(files[j], end="")
+                find_res(j, array, files)
+                print()
+
+def print_cline(file, clines):
+    for cline in clines:
+        if file in cline:
+            print(" ".join(cline))
+
+def find_clines(i, array, files, clines):
+    for j, res in enumerate(files):
+        if array[j][i] == 1:
+            print_cline(files[j], clines)
+            find_clines(j, array, files, clines)
+
+
+def print_clines(array, file, files, clines):
+    i = files.index(file)
+    for j, res in enumerate(files):
+        if array[j][i] == 1:
+            print_cline(files[i], clines)
+            find_clines(j, array, files, clines)
+
+
+
+def main(args):
+    if len(args) == 1:
+        elems, files, _ = parse_file(args[0])
+        files.sort()
+        array = build_array(elems, files)
+        print_all(array, elems, files)
+    elif len(args) == 2:
+        elems, files, clines = parse_file(args[0])
+        array = build_array(elems, files)
+        print_clines(array, args[1], files, clines)
+    else:
+        sys.exit(84)
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
