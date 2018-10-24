@@ -58,30 +58,30 @@ def print_all(array, elems, files):
 
 
 def get_cline(file, elems):
-    to_ret = set()
+    to_print = []
     for elem in elems:
         if elem == file or elem.is_dep(file):
-            to_ret.add(elem.cline)
-    return to_ret
+            to_print.append(elem.cline)
+    print("\n".join(sorted(to_print)))
 
 
 def find_clines(i, array, files, elems):
     to_ret = set()
     for j, res in enumerate(files):
         if array[j][i] == 1:
-            to_ret = to_ret.union(get_cline(files[j], elems))
-            to_ret = to_ret.union(find_clines(j, array, files, elems))
+            get_cline(files[j], elems)
+            find_clines(j, array, files, elems)
+            return
     return to_ret
 
 
 def print_clines(array, file, files, elems):
     i = files.index(file)
-    to_print = set()
     for j, res in enumerate(files):
         if array[j][i] == 1:
-            to_print = to_print.union(get_cline(files[i], elems))
-            to_print = to_print.union(find_clines(j, array, files, elems))
-    print("\n".join(list(to_print)))
+            get_cline(files[i], elems)
+            find_clines(j, array, files, elems)
+            break
 
 
 def main(args):
