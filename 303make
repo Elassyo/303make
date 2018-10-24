@@ -43,6 +43,8 @@ def find_res(i, array, files):
         if array[j][i] == 1:
             print(" -> " + files[j], end="")
             find_res(j, array, files)
+            return
+
 
 def print_all(array, elems, files):
     print("\n".join("[" + " ".join(map(lambda x: str(x), a)) + "]" for a in array) + "\n")
@@ -79,7 +81,7 @@ def print_clines(array, file, files, elems):
         if array[j][i] == 1:
             to_print = to_print.union(get_cline(files[i], elems))
             to_print = to_print.union(find_clines(j, array, files, elems))
-    print("\n".join(sorted(list(to_print))))
+    print("\n".join(list(to_print)))
 
 
 def main(args):
@@ -90,6 +92,7 @@ def main(args):
         print_all(array, elems, files)
     elif len(args) == 2:
         elems, files, clines = parse_file(args[0])
+        files.sort()
         array = build_array(elems, files)
         print_clines(array, args[1], files, elems)
     else:
