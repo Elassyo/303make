@@ -2,7 +2,7 @@
 class Element:
     def __init__(self, line):
         spl = line.split(":")
-        self._name = spl[0]
+        self._name = spl[0].strip()
         self._deps = []
         self.cline = ""
         for dep in spl[1].split():
