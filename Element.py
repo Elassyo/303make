@@ -4,6 +4,7 @@ class Element:
         spl = line.split(":")
         self._name = spl[0]
         self._deps = []
+        self.cline = ""
         for dep in spl[1].split():
             dep = dep.strip()
             if not dep:

@@ -22,6 +22,7 @@ def parse_file(file_name):
             files = files.union(get_files(line))
             elems.append(Element(line))
         else:
+            elems[-1].cline = line
             clines.append(line.split())
     return elems, list(files), clines
 
@@ -53,25 +54,32 @@ def print_all(array, elems, files):
                 find_res(j, array, files)
                 print()
 
-def print_cline(file, clines):
-    for cline in clines:
-        if file in cline:
-            print(" ".join(cline))
 
-def find_clines(i, array, files, clines):
+def get_cline(file, elems):
+    to_ret = set()
+    for elem in elems:
+        if elem == file or elem.is_dep(file):
+            to_ret.add(elem.cline)
+    return to_ret
+
+
+def find_clines(i, array, files, elems):
+    to_ret = set()
     for j, res in enumerate(files):
         if array[j][i] == 1:
-            print_cline(files[j], clines)
-            find_clines(j, array, files, clines)
+            to_ret = to_ret.union(get_cline(files[j], elems))
+            to_ret = to_ret.union(find_clines(j, array, files, elems))
+    return to_ret
 
 
-def print_clines(array, file, files, clines):
+def print_clines(array, file, files, elems):
     i = files.index(file)
+    to_print = set()
     for j, res in enumerate(files):
         if array[j][i] == 1:
-            print_cline(files[i], clines)
-            find_clines(j, array, files, clines)
-
+            to_print = to_print.union(get_cline(files[i], elems))
+            to_print = to_print.union(find_clines(j, array, files, elems))
+    print("\n".join(sorted(list(to_print))))
 
 
 def main(args):
@@ -83,7 +91,7 @@ def main(args):
     elif len(args) == 2:
         elems, files, clines = parse_file(args[0])
         array = build_array(elems, files)
-        print_clines(array, args[1], files, clines)
+        print_clines(array, args[1], files, elems)
     else:
         sys.exit(84)
 
